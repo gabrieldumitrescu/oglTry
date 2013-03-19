@@ -11,13 +11,21 @@ GLuint vbo;
 void RenderSceneCB(){
   glClear(GL_COLOR_BUFFER_BIT);
   
-  glEnableVertexAttribArray(0);
-  glBindBuffer(GL_ARRAY_BUFFER,vbo);
-  glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,0);
-  glDrawArrays(GL_TRIANGLES,0,3);
-  glDisableVertexAttribArray(0);
+  //glEnableVertexAttribArray(0);
+  //glBindBuffer(GL_ARRAY_BUFFER,vbo);
+  //glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,0);
+  //glDrawArrays(GL_TRIANGLES,0,3);
+  //glDisableVertexAttribArray(0);
+  glutWireTorus(0.2f, 0.5f, 50,100);
+
   
   glutSwapBuffers();
+}
+
+void AddShader(){
+}
+
+void CreateProgram(){
 }
 
 GLuint CreateVertexBuffer(){
@@ -55,7 +63,7 @@ int main (int argc, char** argv){
     return 1;
   }
   
-  glClearColor(0.0f,1.0f,1.0f,0.0f);
+  glClearColor(0.0f,0.0f,0.25f,0.0f);
   
   vbo=CreateVertexBuffer();
 
