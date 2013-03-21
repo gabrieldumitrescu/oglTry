@@ -16,6 +16,8 @@ ShaderSourceFile::ShaderSourceFile(const char* filename, GLenum shader_type):m_s
     (*m_source_code)+=line;
     (*m_source_code)+="\n";
   }
+  //fprintf(stderr,"Shader source from %s : %s \n",m_source_file->c_str(),m_source_code->c_str());
+  input.close();
 } 
 
 ShaderSourceFile::~ShaderSourceFile(){
@@ -24,7 +26,7 @@ ShaderSourceFile::~ShaderSourceFile(){
 }
 
 void ShaderSourceFile::CompileShader(){
-  GLuint m_shader_obj=glCreateShader(m_shader_type);
+  m_shader_obj=glCreateShader(m_shader_type);
   if (m_shader_obj == 0) {
         fprintf(stderr, "Error creating shader type %d\n", m_shader_type);
         exit(0);
