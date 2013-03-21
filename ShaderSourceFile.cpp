@@ -2,7 +2,9 @@
 
 #include "ShaderSourceFile.h"
 
-ShaderSourceFile::ShaderSourceFile(const char* filename, GLenum shader_type):m_shader_type(shader_type){
+ShaderSourceFile::ShaderSourceFile(const char* filename, GLenum shader_type):
+  m_shader_type(shader_type),m_isCompiled(false)
+{
   std::ifstream input;
   input.open(filename);
   if(input.fail()){
@@ -23,6 +25,7 @@ ShaderSourceFile::ShaderSourceFile(const char* filename, GLenum shader_type):m_s
 ShaderSourceFile::~ShaderSourceFile(){
   delete m_source_file;
   delete m_source_code;
+  if(m_isCompiled) glDeleteShader(m_shader_obj);
 }
 
 void ShaderSourceFile::CompileShader(){
@@ -50,5 +53,6 @@ void ShaderSourceFile::CompileShader(){
 
 void ShaderSourceFile::AttachToProgram(GLuint ShaderProgram){
   CompileShader();
+  m_isCompiled=true;
   glAttachShader(ShaderProgram,m_shader_obj);
 }

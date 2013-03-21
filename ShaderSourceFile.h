@@ -23,6 +23,7 @@ class ShaderSourceFile{
   std::string* m_source_code;
   GLenum m_shader_type;
   GLuint m_shader_obj;
+  bool m_isCompiled;
 
 };
  
