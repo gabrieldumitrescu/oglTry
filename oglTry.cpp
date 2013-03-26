@@ -18,7 +18,7 @@ void RenderSceneCB(){
   
   static float Scale = 0.0f;
 
-  Scale += 0.001f;
+  Scale += 0.005f;
 
   glUniform1f(gScaleLocation, sinf(Scale));
 
