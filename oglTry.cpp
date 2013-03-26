@@ -6,6 +6,7 @@
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include "ShaderSourceFile.h"
+#include "math_3d.h"
 #include <math.h>
 #include <assert.h>
 
@@ -28,9 +29,7 @@ void RenderSceneCB(){
   glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,0);
   glDrawArrays(GL_TRIANGLES,0,3);
   glDisableVertexAttribArray(0);
-  //glutWireTorus(0.2f, 0.5f, 50,100);
-
-  
+    
   glutSwapBuffers();
 }
 
@@ -41,10 +40,10 @@ void CompileShaders(){
         fprintf(stderr, "Error creating shader program\n");
         exit(1);
   }
-  ShaderSourceFile vs("vertex.glsl",GL_VERTEX_SHADER);
-  ShaderSourceFile fs("fragment.glsl",GL_FRAGMENT_SHADER);
+  ShaderSourceFile vs("vertex.glsl",GL_VERTEX_SHADER);//load vertex shader from file vertex.glsl
+  ShaderSourceFile fs("fragment.glsl",GL_FRAGMENT_SHADER);//load fragment shader from file fragment.glsl
 
-  vs.AttachToProgram(ShaderProgram);
+  vs.AttachToProgram(ShaderProgram);//attach shaders to our program
   fs.AttachToProgram(ShaderProgram);
   
   GLint Success = 0;
@@ -52,18 +51,22 @@ void CompileShaders(){
 
   glLinkProgram(ShaderProgram);
   glGetProgramiv(ShaderProgram, GL_LINK_STATUS, &Success);
+  
   if (Success == 0) {
     glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
     fprintf(stderr, "Error linking shader program: '%s'\n", ErrorLog);
     exit(1);
   }
+  //glEnable(GL_FRAMEBUFFER_SRGB);
   glValidateProgram(ShaderProgram);
   glGetProgramiv(ShaderProgram, GL_VALIDATE_STATUS, &Success);
+  
   if (!Success) {
     glGetProgramInfoLog(ShaderProgram, sizeof(ErrorLog), NULL, ErrorLog);
     fprintf(stderr, "Invalid shader program: '%s'\n", ErrorLog);
     exit(1);
   }
+  
   glUseProgram(ShaderProgram);
   gScaleLocation = glGetUniformLocation(ShaderProgram, "gScale");
   assert(gScaleLocation != 0xFFFFFFFF);
@@ -78,6 +81,7 @@ GLuint CreateVertexBuffer(){
     0.5f,-0.5f,0.0f,
     0.0f,0.5f,0.0f
   };
+  printf("Sizeof(vertices)=%d",sizeof(vertices));
   glBufferData(GL_ARRAY_BUFFER,sizeof(vertices), vertices, GL_STATIC_DRAW);
   return res;
 }
@@ -104,7 +108,7 @@ int main (int argc, char** argv){
     return 1;
   }
   
-  glClearColor(0.0f,0.0f,0.25f,0.0f);
+  glClearColor(0.0f,0.0f,0.55f,0.0f);
   
   vbo=CreateVertexBuffer();
 
