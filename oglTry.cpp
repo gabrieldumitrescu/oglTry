@@ -10,24 +10,31 @@
 #include <math.h>
 #include <assert.h>
 
-GLuint vbo;
-GLuint gScaleLocation;
+GLuint vbo,ibo;
+GLuint gWorldLocation;
 
 
 void RenderSceneCB(){
   glClear(GL_COLOR_BUFFER_BIT);
   
-  static float Scale = 0.0f;
+  static float Step = 0.0f;
 
-  Scale += 0.005f;
+   Step+= 0.001f;
 
-  glUniform1f(gScaleLocation, sinf(Scale));
+   Matrix4f scale,rotation,world;
+   rotation.InitRotationMatrix(sinf(Step)*30.0f,sinf(Step)*30.0f,sinf(Step)*30.0f);
+   scale.InitScaleMatrix(sinf(Step*0.1f),sinf(Step*0.1f),sinf(Step*0.1f));
+   world=scale * rotation;
+
+   glUniformMatrix4fv(gWorldLocation,1,GL_TRUE, &world.mat[0][0]);
 
 
   glEnableVertexAttribArray(0);
   glBindBuffer(GL_ARRAY_BUFFER,vbo);
   glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,0);
-  glDrawArrays(GL_TRIANGLES,0,3);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo);
+
+  glDrawElements(GL_TRIANGLES,12,GL_UNSIGNED_INT,0);
   glDisableVertexAttribArray(0);
     
   glutSwapBuffers();
@@ -68,20 +75,35 @@ void CompileShaders(){
   }
   
   glUseProgram(ShaderProgram);
-  gScaleLocation = glGetUniformLocation(ShaderProgram, "gScale");
-  assert(gScaleLocation != 0xFFFFFFFF);
+  gWorldLocation = glGetUniformLocation(ShaderProgram, "World");
+  assert(gWorldLocation != 0xFFFFFFFF);
+}
+
+GLuint CreateIndexBuffer(){
+  GLuint res;
+  unsigned int Indices[] = { 0, 3, 1,
+                               1, 3, 2,
+                               2, 3, 0,
+                               0, 2, 1 };
+
+  glGenBuffers(1,&res);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,res);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(Indices),Indices,GL_STATIC_DRAW);
+  return res;
+  
 }
 
 GLuint CreateVertexBuffer(){
   GLuint res;
   glGenBuffers(1,&res);
   glBindBuffer(GL_ARRAY_BUFFER,res);
-  float vertices[9]={
-    -0.5f,-0.5f,0.0f,
-    0.5f,-0.5f,0.0f,
-    0.0f,0.5f,0.0f
+  float vertices[]={
+    -1.0f,-1.0f,0.0f,
+    0.0f,-1.0f,1.0f,
+    1.0f,-1.0f,0.0f,
+    0.0f,1.0f,0.0f
   };
-  printf("Sizeof(vertices)=%d",sizeof(vertices));
+  //printf("Sizeof(vertices)=%d",sizeof(vertices));
   glBufferData(GL_ARRAY_BUFFER,sizeof(vertices), vertices, GL_STATIC_DRAW);
   return res;
 }
@@ -97,7 +119,7 @@ int main (int argc, char** argv){
   if(!glutGet(GLUT_DISPLAY_MODE_POSSIBLE)) exit(1);
 
   int win_no=glutCreateWindow("My OpenGl Application");
-  printf("Created window no:%d\n",win_no);
+  //printf("Created window no:%d\n",win_no);
 
   glutDisplayFunc(RenderSceneCB);
   glutIdleFunc(RenderSceneCB);
@@ -109,6 +131,8 @@ int main (int argc, char** argv){
   }
   
   glClearColor(0.0f,0.0f,0.55f,0.0f);
+
+  ibo=CreateIndexBuffer();
   
   vbo=CreateVertexBuffer();
 
