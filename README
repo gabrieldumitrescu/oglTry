@@ -1,2 +1,4 @@
 OpenGL application in c++.
 I just try some beginner features of the API.
+
+Uses and modifies the source code provided by the OpenGL tutorials at http://ogldev.atspace.co.uk/index.html under the terms of GNU General Public License.
