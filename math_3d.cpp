@@ -46,6 +46,22 @@ void Matrix4f::InitTranslationMatrix(float transX,float transY,float transZ){
     mat[2][3]=transZ;
 }
 
+void Matrix4f::InitPerspectiveMatrix(float FOV, float width, float height,
+				     float zNear, float zFar){
+    InitIdentity();
+    float ar=width/height;
+    float zRange=zNear-zFar;
+    float tanHalfFOV=tanf(ToRadian(FOV/2.0f));
+
+    mat[0][0]=1.0f / (ar * tanHalfFOV);
+    mat[1][1]=1.0f / tanHalfFOV;
+    mat[2][2]= (- zNear - zFar)/ zRange;
+    mat[2][3]= 2.0f * zNear * zFar / zRange;
+    mat[3][2]=1.0f; // copy Z to W
+    mat[3][3]=0.0f; // discard old W
+}
+
+
 Matrix4f Matrix4f::operator*(const Matrix4f &right) const{
   Matrix4f res;
   for(unsigned int i=0;i<4; ++i)

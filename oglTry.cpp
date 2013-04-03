@@ -1,4 +1,5 @@
-/* My OpenGL try aplication
+/* 
+ * My OpenGL try aplication
  */
 
 
@@ -7,8 +8,12 @@
 #include <GL/freeglut.h>
 #include "ShaderSourceFile.h"
 #include "math_3d.h"
+#include "pipeline.h"
 #include <math.h>
 #include <assert.h>
+
+#define WIDTH 800
+#define HEIGHT 600
 
 GLuint vbo,ibo;
 GLuint gWorldLocation;
@@ -21,20 +26,20 @@ void RenderSceneCB(){
 
    Step+= 0.001f;
 
-   Matrix4f scale,rotation,world;
-   rotation.InitRotationMatrix(sinf(Step)*30.0f,sinf(Step)*30.0f,sinf(Step)*30.0f);
-   scale.InitScaleMatrix(sinf(Step*0.1f),sinf(Step*0.1f),sinf(Step*0.1f));
-   world=scale * rotation;
-
-   glUniformMatrix4fv(gWorldLocation,1,GL_TRUE, &world.mat[0][0]);
-
+   Pipeline p;
+   p.setRotationTransform(sinf(Step)*30.0f,sinf(Step)*30.0f,sinf(Step)*30.0f);
+   p.setScaleTransform(sinf(Step*0.1f),sinf(Step*0.1f),sinf(Step*0.1f));
+   p.setTranslationTransform(0.0f, 0.0f, 20.0f);
+   p.setPerspectiveTransform(30.0f , WIDTH, HEIGHT, 1.0f, 500.0f);
+   glUniformMatrix4fv(gWorldLocation,1,GL_TRUE, 
+		      &p.getTransform().mat[0][0]);
 
   glEnableVertexAttribArray(0);
   glBindBuffer(GL_ARRAY_BUFFER,vbo);
   glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,0,0);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,ibo);
 
-  glDrawElements(GL_TRIANGLES,12,GL_UNSIGNED_INT,0);
+  glDrawElements(GL_TRIANGLES,36,GL_UNSIGNED_INT,0);
   glDisableVertexAttribArray(0);
     
   glutSwapBuffers();
@@ -82,9 +87,19 @@ void CompileShaders(){
 GLuint CreateIndexBuffer(){
   GLuint res;
   unsigned int Indices[] = { 0, 3, 1,
-                               1, 3, 2,
-                               2, 3, 0,
-                               0, 2, 1 };
+                             1, 3, 2,
+                             2, 1, 6,
+                             2, 6, 5,
+			     7, 6, 5,
+			     5, 7, 4,
+			     4, 7, 3,
+			     3, 7, 0,
+			     7, 0, 1,
+			     1, 7, 6,
+			     3, 2, 4,
+			     4, 2, 5
+			     
+};
 
   glGenBuffers(1,&res);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,res);
@@ -98,10 +113,14 @@ GLuint CreateVertexBuffer(){
   glGenBuffers(1,&res);
   glBindBuffer(GL_ARRAY_BUFFER,res);
   float vertices[]={
-    -1.0f,-1.0f,0.0f,
-    0.0f,-1.0f,1.0f,
-    1.0f,-1.0f,0.0f,
-    0.0f,1.0f,0.0f
+    -0.5f,0.0f,-0.5f,
+    0.5f,0.0f,-0.5f,
+    0.5f,1.0f,-0.5f,
+    -0.5f,1.0f,-0.5f,
+    -0.5f,1.0f,0.5f,
+    0.5f,1.0f,0.5f,
+    0.5f,0.0f,0.5f,
+    -0.5f,0.0f,0.5f
   };
   //printf("Sizeof(vertices)=%d",sizeof(vertices));
   glBufferData(GL_ARRAY_BUFFER,sizeof(vertices), vertices, GL_STATIC_DRAW);
@@ -111,7 +130,7 @@ GLuint CreateVertexBuffer(){
 int main (int argc, char** argv){
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-  glutInitWindowSize(800,600);
+  glutInitWindowSize(WIDTH,HEIGHT);
   glutInitWindowPosition(100,100);
 
   
